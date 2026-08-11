@@ -1,0 +1,144 @@
+% templates/cover_letter.tex
+% Canonical cover letter template. Layout spec in templates/COVER_LETTER_FORMAT.md.
+%
+% This is a PANDOC LATEX TEMPLATE, not a standalone document. It is never
+% compiled on its own: pandoc fills the body and the metadata fields from the
+% letter's markdown file, then hands the result to the PDF engine.
+% (Template directives are substituted even inside LaTeX comments, so never
+% write a bare dollar-delimited field name in this file's prose.)
+%
+% Build, in two steps, so each letter leaves an editable .tex beside its PDF:
+%   pandoc <LastName>-Cover-Letter.md -o <LastName>-Cover-Letter.tex \
+%     --template=templates/cover_letter.tex
+%   pdflatex <LastName>-Cover-Letter.tex
+%
+% Output: one-page PDF, US Letter, 1in margins, Helvetica (Arial match).
+% Typography is matched to templates/resume.tex so the two documents read as a
+% set. Do not redesign the layout; per-job content lives in the markdown file.
+%
+% FIRST RUN: the letterhead and signature below ship with {{PLACEHOLDERS}}. The
+% `setup` skill fills them from your answers, once. They are your standing
+% details, identical on every letter, which is why they live here and not in
+% each letter's YAML block.
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}   % a letter uses 1in, not the 0.5in resume
+\usepackage{helvet}                 % Helvetica: the closest metric match to Arial
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[shortlabels]{enumitem}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  pdfauthor={{{FULL-NAME}}},
+  pdftitle={{{FULL-NAME}} - Cover Letter}
+}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\topskip}{0pt}           % let the letter box start flush with the top
+
+% Match the resume's bullet styling, on the rare letter that needs a list.
+\setlist[itemize]{leftmargin=1.5em, topsep=2pt, itemsep=1.5pt, parsep=0pt,
+                  label=\textbullet}
+
+% pandoc emits \tightlist for compact markdown lists.
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+$for(header-includes)$
+$header-includes$
+$endfor$
+
+% --- The letter --------------------------------------------------------------
+% \clletter{<font size>}{<leading>}{<paragraph gap>} typesets the WHOLE letter,
+% letterhead through signature, into a single block. The one-page fitter below
+% calls it repeatedly at different sizes, so it must stay free of side effects.
+\newcommand{\clletter}[3]{%
+  \begin{minipage}[t]{\textwidth}%
+    \setlength{\parindent}{0pt}%
+    \setlength{\parskip}{#3}%
+    \fontsize{#1}{#2}\selectfont
+    % Letterhead: left-aligned business block, ruled off from the letter.
+    % Not comfortable putting your street address on a letter? Delete that line
+    % and its trailing \\ ; city and state alone is a normal choice.
+    {\fontsize{14}{17}\selectfont\bfseries {{FULL-NAME}}}\\
+    {{STREET-ADDRESS}} \textperiodcentered{} {{CITY-STATE-ZIP}}\\
+    {{PHONE}} \textperiodcentered{} \href{mailto:{{EMAIL}}}{{{EMAIL}}}
+    \par\vspace{3pt}\hrule height 0.6pt
+
+    $if(date)$$date$$endif$
+
+    $if(recipient)$$recipient$$else$Hiring Manager$endif$\\
+    $if(company)$$company$$else$\mbox{}$endif$
+
+    $if(salutation)$$salutation$$else$Dear $if(recipient)$$recipient$$else$Hiring Manager$endif$,$endif$
+
+    $body$
+
+    $if(closing)$$closing$$else$Sincerely,$endif$
+    \vspace{#3}
+
+    % Portfolio sits under the sign-off as a live blue link, mirroring the
+    % resume's contact line. Hardcoded like the letterhead above rather than
+    % driven from YAML, since it is a standing personal detail, not per-job
+    % content. Add "hide-portfolio: true" to a letter's YAML to suppress it on
+    % one letter. No portfolio site at all? Delete from the \\ through the
+    % \href, leaving just the name.
+    {{FULL-NAME}}$if(hide-portfolio)$$else$\\
+    \href{https://{{PORTFOLIO}}}{{{PORTFOLIO}}}$endif$
+  \end{minipage}%
+}
+
+% --- One-page fitter ---------------------------------------------------------
+% A cover letter must never spill onto a second page. The letter is typeset into
+% a box and measured against the page. If it is too tall, it is rebuilt one step
+% smaller and measured again, from the intended look down to a floor of 10pt.
+% The whole ladder is invisible on a letter of the intended length: a three or
+% four paragraph letter never leaves the first preset.
+%
+% If even the smallest preset overflows, the letter is too long to fix with
+% typography, so this raises a hard LaTeX error. That is deliberate. pdflatex
+% then writes no PDF at all, which is the only way to guarantee that a two-page
+% cover letter can never be submitted by accident. Shorten the prose and rebuild.
+% (In the two-step build, pandoc still writes the .tex, since it does no
+% typesetting. The missing PDF is the signal, not a pandoc error.)
+\newsavebox{\clbox}
+\newlength{\clheight}
+\newlength{\clavail}
+
+\newcommand{\clfit}[3]{%
+  \savebox{\clbox}{\clletter{#1}{#2}{#3}}%
+  \setlength{\clheight}{\ht\clbox}%
+  \addtolength{\clheight}{\dp\clbox}%
+}
+
+\begin{document}
+
+\setlength{\clavail}{\textheight}
+\addtolength{\clavail}{-2pt}        % epsilon against rounding at the boundary
+
+\clfit{11}{13.6}{11pt}              % comfortable: the intended look
+\ifdim\clheight>\clavail
+  \clfit{11}{13.0}{8pt}             % tight
+  \ifdim\clheight>\clavail
+    \clfit{10.5}{12.4}{6pt}         % compact
+    \ifdim\clheight>\clavail
+      \clfit{10}{11.8}{5pt}         % minimum: the floor
+      \ifdim\clheight>\clavail
+        \GenericError{}{%
+          Cover letter does not fit on one page even at the smallest preset.
+          Shorten the body to three or four paragraphs and rebuild.%
+        }{}{}%
+      \fi
+    \fi
+  \fi
+\fi
+
+\noindent\usebox{\clbox}
+
+\end{document}

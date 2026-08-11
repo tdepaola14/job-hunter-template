@@ -1,0 +1,113 @@
+% templates/resume.tex
+% Canonical resume template. Layout spec in templates/RESUME_FORMAT.md.
+%
+% Build:   pdflatex resume.tex      (or: latexmk -pdf resume.tex)
+% Output:  one-page PDF, US Letter, 0.5in margins, Helvetica (Arial match).
+%
+% ---------------------------------------------------------------------------
+% FIRST RUN: this file ships with {{PLACEHOLDERS}}. The `setup` skill fills the
+% header and Education block from your answers, once. After that this file is
+% YOUR canonical resume and the placeholders are gone.
+%
+% It compiles as-shipped, placeholders and all, so you can run
+%   pdflatex templates/resume.tex
+% right after cloning to confirm your LaTeX install works before entering
+% anything real. (Placeholder names avoid underscores for exactly this reason:
+% `_` is a math-mode character and would break the build.)
+%
+% Per-job resumes are produced by cloning this file into
+% outputs/<company-role>/<LastName>-Resume.tex and swapping only the Relevant
+% Experience and Work Experience entries (and their ordering) to suit the
+% posting. Do not redesign the layout; change content only.
+%
+% If you already have a resume you like, tell the setup skill and it will
+% reshape this template to match your layout before filling anything in.
+% ---------------------------------------------------------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{helvet}                 % Helvetica: the closest metric match to Arial
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[shortlabels]{enumitem}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  urlcolor=blue,
+  linkcolor=blue,
+  pdfauthor={{{FULL-NAME}}},
+  pdftitle={{{FULL-NAME}} - Resume}
+}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+% Tight bullet lists: 11pt round bullets, minimal vertical air.
+\setlist[itemize]{leftmargin=1.5em, topsep=2pt, itemsep=1.5pt, parsep=0pt,
+                  label=$\bullet$}
+
+% --- Helpers -----------------------------------------------------------------
+% Section header: 12pt bold with a full-width bottom rule.
+\newcommand{\sectionheader}[1]{%
+  \vspace{6pt}%
+  {\fontsize{12}{14}\selectfont\bfseries #1}\par
+  \vspace{1pt}\hrule height 0.6pt\vspace{4pt}%
+}
+
+% Entry: bold title line, then org (left) with date/term right-aligned.
+% Usage: \entry{Title}{Organization line}{Date or term}
+\newcommand{\entry}[3]{%
+  \vspace{5pt}%
+  \textbf{#1}\\
+  #2 \hfill \textit{#3}%
+}
+
+\begin{document}
+
+% --- Name + contact ----------------------------------------------------------
+% Contact line format: phone | email | portfolio.
+% No portfolio site? Delete the third segment AND the \quad\textbar\quad before
+% it. LinkedIn can take its place if you would rather link that.
+\begin{center}
+  {\fontsize{18}{22}\selectfont\bfseries {{FULL-NAME}}}\\[4pt]
+  {{PHONE}} \quad\textbar\quad \href{mailto:{{EMAIL}}}{{{EMAIL}}} \quad\textbar\quad \href{https://{{PORTFOLIO}}}{{{PORTFOLIO}}}
+\end{center}
+
+% --- Education ---------------------------------------------------------------
+% Drop any line that does not apply to you. Nothing here is mandatory except the
+% school, degree, and graduation term.
+\sectionheader{Education}
+\textbf{{{SCHOOL}}} \hfill \textit{{{GRADUATION-TERM}}}\\
+\textit{{{DEGREE}}}\\
+{{HONORS-LINE}}\\
+{{CREDENTIALS-LINE}}\\
+\textbf{Activities:} {{ACTIVITIES}}\\
+\textbf{Technical Skills:} {{TECHNICAL-SKILLS}}
+
+% --- Relevant Experience -----------------------------------------------------
+% Everything below this line is replaced per job by the build-application skill.
+% The two entries here exist only to show the pattern. Delete them once you have
+% run your first build; they are not your content.
+\sectionheader{Relevant Experience}
+
+\entry{{{JOB-TITLE}} - {{TEAM-OR-LAB}}}%
+{{{ORGANIZATION}}}{{{DATE-RANGE}}}
+\begin{itemize}
+  \item Bullet drawn from a Resume Bullet Candidate in the matching accomplishment doc.
+  \item Second bullet. Strong verb first, technical detail, impact where a real number exists.
+  \item Third bullet. Two or three per entry reads best at this density.
+\end{itemize}
+
+% --- Work Experience ---------------------------------------------------------
+\sectionheader{Work Experience}
+
+\entry{{{JOB-TITLE}} - {{EMPLOYER}}}%
+{{{LOCATION}}}{{{DATE-RANGE}}}
+\begin{itemize}
+  \item Employment that shows reliability and working with people belongs here.
+  \item Engineering-relevant work belongs in Relevant Experience above.
+\end{itemize}
+
+\end{document}

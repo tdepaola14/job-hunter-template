@@ -1,0 +1,9 @@
+% Pandoc include-in-header for plain markdown renders (job descriptions,
+% interview prep). Makes the body font Helvetica (a scalable Type1 Arial match)
+% so the output matches the resume PDF, and so microtype font expansion has a
+% scalable font to work with. Cover letters do not need this: they use
+% templates/cover_letter.tex, which sets its own fonts. Use with:
+%   pandoc in.md -o out.pdf -V geometry=margin=0.5in -V fontsize=11pt \
+%     --include-in-header=templates/pandoc-header.tex
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
